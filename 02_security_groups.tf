@@ -17,7 +17,7 @@ resource "aws_security_group" "lb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags {
+  tags = {
     Name = "${local.readable_env_name}-lb"
     env = local.env
   }
@@ -44,7 +44,7 @@ resource "aws_security_group" "ecs_tasks" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags {
+  tags = {
     Name = "${local.readable_env_name}-ecs-tasks"
     env = local.env
   }

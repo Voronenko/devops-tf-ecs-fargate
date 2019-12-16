@@ -1,8 +1,8 @@
 resource "aws_alb" "main" {
   name            = "${local.app_name}-app"
-  subnets         = [aws_subnet.public.*.id]
+  subnets         = [aws_subnet.public.0.id, aws_subnet.public.1.id]
   security_groups = [aws_security_group.lb.id]
-  tags {
+  tags = {
     Name = local.readable_env_name
     env = local.env
   }
@@ -14,7 +14,7 @@ resource "aws_alb_target_group" "app" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
-  tags {
+  tags = {
     Name = "${local.readable_env_name}-app"
     env = local.env
   }

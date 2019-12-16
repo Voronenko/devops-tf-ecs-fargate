@@ -5,7 +5,7 @@ resource "aws_subnet" "private" {
   availability_zone = data.aws_availability_zones.available.names[count.index]
   vpc_id            = aws_vpc.main.id
   map_public_ip_on_launch = true  # Remove this for case with NAT
-  tags {
+  tags = {
     Name = "${local.readable_env_name}-private"
     env = local.env
   }
@@ -19,7 +19,7 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   vpc_id                  = aws_vpc.main.id
   map_public_ip_on_launch = true
-  tags {
+  tags = {
     Name = "${local.readable_env_name}-public"
     env = local.env
   }
@@ -29,7 +29,7 @@ resource "aws_subnet" "public" {
 # IGW for the public subnet
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
-  tags {
+  tags = {
     Name = "${local.readable_env_name}-igw"
     env = local.env
   }
@@ -88,7 +88,7 @@ resource "aws_route_table" "private" {
     gateway_id = aws_internet_gateway.gw.id
   }
 
-  tags {
+  tags = {
     Name = "${local.readable_env_name}-rt-private"
     env = local.env
   }
