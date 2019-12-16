@@ -53,8 +53,8 @@ locals {
 
   app_name = "crochunter-fargate"
 
-  env = "${lookup(var.workspace_to_environment_map, terraform.workspace, "dev")}"
-  region = "${var.environment_to_region_map[local.env]}"
+  env = lookup(var.workspace_to_environment_map, terraform.workspace, "dev")
+  region = var.environment_to_region_map[local.env]
   readable_env_name = "${local.app_name}-${local.env}"
 
   ecs_cluster_name = "${var.ecs_cluster}-${terraform.workspace}"

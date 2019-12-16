@@ -1,45 +1,45 @@
 # Create var.az_count private subnets, each in a different AZ
 resource "aws_subnet" "private" {
-  count             = "${var.az_count}"
-  cidr_block        = "${cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)}"
-  availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
-  vpc_id            = "${aws_vpc.main.id}"
+  count             = var.az_count
+  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+  vpc_id            = aws_vpc.main.id
   map_public_ip_on_launch = true  # Remove this for case with NAT
   tags {
     Name = "${local.readable_env_name}-private"
-    env = "${local.env}"
+    env = local.env
   }
 
 }
 
 # Create var.az_count public subnets, each in a different AZ
 resource "aws_subnet" "public" {
-  count                   = "${var.az_count}"
-  cidr_block              = "${cidrsubnet(aws_vpc.main.cidr_block, 8, var.az_count + count.index)}"
-  availability_zone       = "${data.aws_availability_zones.available.names[count.index]}"
-  vpc_id                  = "${aws_vpc.main.id}"
+  count                   = var.az_count
+  cidr_block              = cidrsubnet(aws_vpc.main.cidr_block, 8, var.az_count + count.index)
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  vpc_id                  = aws_vpc.main.id
   map_public_ip_on_launch = true
   tags {
     Name = "${local.readable_env_name}-public"
-    env = "${local.env}"
+    env = local.env
   }
 
 }
 
 # IGW for the public subnet
 resource "aws_internet_gateway" "gw" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
   tags {
     Name = "${local.readable_env_name}-igw"
-    env = "${local.env}"
+    env = local.env
   }
 }
 
 # Route the public subnet traffic through the IGW
 resource "aws_route" "internet_access" {
-  route_table_id         = "${aws_vpc.main.main_route_table_id}"
+  route_table_id         = aws_vpc.main.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = "${aws_internet_gateway.gw.id}"
+  gateway_id             = aws_internet_gateway.gw.id
 }
 
 
@@ -80,25 +80,25 @@ resource "aws_route" "internet_access" {
 
 # Comment for proper setup
 resource "aws_route_table" "private" {
-  count  = "${var.az_count}"
-  vpc_id = "${aws_vpc.main.id}"
+  count  = var.az_count
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.gw.id}"
+    gateway_id = aws_internet_gateway.gw.id
   }
 
   tags {
     Name = "${local.readable_env_name}-rt-private"
-    env = "${local.env}"
+    env = local.env
   }
 
 }
 
 resource "aws_route_table_association" "private" {
-  count          = "${var.az_count}"
-  subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
-  route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
+  count          = var.az_count
+  subnet_id      = element(aws_subnet.private.*.id, count.index)
+  route_table_id = element(aws_route_table.private.*.id, count.index)
 }
 
 # /Comment for proper setup

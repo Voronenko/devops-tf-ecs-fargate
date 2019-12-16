@@ -1,12 +1,12 @@
 resource "aws_security_group" "lb" {
   name        = "${local.app_name}-alb"
   description = "controls access to the ALB"
-  vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     protocol    = "tcp"
-    from_port   = "${var.app_port_public}"
-    to_port     = "${var.app_port_public}"
+    from_port   = var.app_port_public
+    to_port     = var.app_port_public
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -19,7 +19,7 @@ resource "aws_security_group" "lb" {
 
   tags {
     Name = "${local.readable_env_name}-lb"
-    env = "${local.env}"
+    env = local.env
   }
 
 }
@@ -28,13 +28,13 @@ resource "aws_security_group" "lb" {
 resource "aws_security_group" "ecs_tasks" {
   name        = "${local.app_name}-ecs-tasks"
   description = "allow inbound access from the ALB only"
-  vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     protocol        = "tcp"
-    from_port       = "${var.app_port}"
-    to_port         = "${var.app_port}"
-    security_groups = ["${aws_security_group.lb.id}"]
+    from_port       = var.app_port
+    to_port         = var.app_port
+    security_groups = [aws_security_group.lb.id]
   }
 
   egress {
@@ -46,7 +46,7 @@ resource "aws_security_group" "ecs_tasks" {
 
   tags {
     Name = "${local.readable_env_name}-ecs-tasks"
-    env = "${local.env}"
+    env = local.env
   }
 
 }
